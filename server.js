@@ -6,7 +6,7 @@ const app = express();
 app.use(cors()); // later you can restrict to your domains
 app.use(express.json());
 
-const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY;
+const ELEVENLABS_API_KEY = process.env.sk_07d66e43c0fc53d1c8d2fc6c06584d80d423dfd768bbfaee;
 const VOICE_ID = "RV61Jufh8hla0FskiCGw"; // DangerousGem voice ID
 
 // sanity check routes
