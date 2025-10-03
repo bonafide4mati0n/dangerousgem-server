@@ -1,46 +1,56 @@
 import express from "express";
 import cors from "cors";
-import fetch from "node-fetch"; // or axios
+import fetch from "node-fetch";
 
 const app = express();
-app.use(cors());
+app.use(cors()); // later you can restrict to your domains
 app.use(express.json());
 
-const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY; // store key in Render settings
+const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY;
+const VOICE_ID = "RV61Jufh8hla0FskiCGw"; // DangerousGem voice ID
+
+// sanity check routes
+app.get("/", (_req, res) => res.json({ hello: "dangerousgem alive" }));
+app.get("/health", (_req, res) => res.json({ ok: true }));
 
 app.post("/speak", async (req, res) => {
   try {
-    const { text } = req.body;
-    const voice = "RV61Jufh8hla0FskiCGw"; // correct voice ID for DangerousGem
+    if (!ELEVENLABS_API_KEY) {
+      return res.status(500).json({ error: "Missing ELEVENLABS_API_KEY" });
+    }
+    const { text = "" } = req.body || {};
+    const msg = String(text).trim();
+    if (!msg) return res.status(400).json({ error: "text is required" });
 
-    const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voice}`, {
+    const r = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}`, {
       method: "POST",
       headers: {
         "xi-api-key": ELEVENLABS_API_KEY,
         "Content-Type": "application/json",
+        "Accept": "audio/mpeg"
       },
       body: JSON.stringify({
-        text,
+        text: msg,
         model_id: "eleven_monolingual_v1",
-        voice_settings: {
-          stability: 0.5,
-          similarity_boost: 0.75,
-        },
-      }),
+        output_format: "mp3_44100_128",
+        voice_settings: { stability: 0.5, similarity_boost: 0.75 }
+      })
     });
 
-    if (!response.ok) {
-      throw new Error(`ElevenLabs API error: ${response.statusText}`);
+    if (!r.ok) {
+      const details = await r.text().catch(() => "");
+      console.error("ElevenLabs API error:", r.status, details);
+      return res.status(r.status).json({ error: "ElevenLabs API error" });
     }
 
-    const arrayBuffer = await response.arrayBuffer();
+    const buf = Buffer.from(await r.arrayBuffer());
     res.set("Content-Type", "audio/mpeg");
-    res.send(Buffer.from(arrayBuffer));
+    res.send(buf);
   } catch (err) {
-    console.error("Error generating voice:", err);
-    res.status(500).send("Error generating voice");
+    console.error("Server error:", err);
+    res.status(500).json({ error: "Error generating voice" });
   }
 });
 
 const port = process.env.PORT || 5174;
-app.listen(port, () => console.log(`Voice server running on ${port}`));
+app.listen(port, () => console.log(`🎙️ Voice server running on ${port}`));
