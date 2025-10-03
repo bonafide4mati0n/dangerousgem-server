@@ -1,15 +1,17 @@
 {
-  "name": "dangerousgem-server",
+  "name": "dangerousgem-voice-server",
   "version": "1.0.0",
-  "description": "Voice server for Amethyst (DangerousGem on ElevenLabs)",
-  "main": "server.js",
+  "private": true,
   "type": "module",
+  "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
-    "express": "^4.19.0",
     "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "helmet": "^7.1.0",
+    "morgan": "^1.10.0",
     "node-fetch": "^3.3.2"
   }
 }
