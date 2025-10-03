@@ -16,7 +16,7 @@ app.post("/speak", async (req, res) => {
     const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voice}`, {
       method: "POST",
       headers: {
-        "xi-api-key": sk_44417504ba00b6f192c95845e92e241dfb8afea08436bf96,
+        "xi-api-key": sk_07d66e43c0fc53d1c8d2fc6c06584d80d423dfd768bbfaee,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
