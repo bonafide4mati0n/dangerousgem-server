@@ -11,12 +11,12 @@ const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY; // store key in Rende
 app.post("/speak", async (req, res) => {
   try {
     const { text } = req.body;
-    const voice = "DangerousGem"; // your custom voice name
+    const voice = "RV61Jufh8hla0FskiCGw"; // correct voice ID for DangerousGem
 
     const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voice}`, {
       method: "POST",
       headers: {
-        "xi-api-key": sk_07d66e43c0fc53d1c8d2fc6c06584d80d423dfd768bbfaee,
+        "xi-api-key": ELEVENLABS_API_KEY,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -29,11 +29,15 @@ app.post("/speak", async (req, res) => {
       }),
     });
 
+    if (!response.ok) {
+      throw new Error(`ElevenLabs API error: ${response.statusText}`);
+    }
+
     const arrayBuffer = await response.arrayBuffer();
     res.set("Content-Type", "audio/mpeg");
     res.send(Buffer.from(arrayBuffer));
   } catch (err) {
-    console.error(err);
+    console.error("Error generating voice:", err);
     res.status(500).send("Error generating voice");
   }
 });
